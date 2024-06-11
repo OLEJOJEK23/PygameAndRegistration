@@ -15,7 +15,7 @@ def main(page: ft.Page) -> None:
 
     text_login_signup: TextField = TextField(label='Логин', text_align=ft.TextAlign.LEFT, width=200)
     text_password_signup: TextField = TextField(label='Пароль', text_align=ft.TextAlign.LEFT, width=200, password=True)
-    checkbox_show_password: Checkbox = Checkbox(label='Я согласен', value=False)
+    checkbox_show_password: Checkbox = Checkbox(label='Показать пароль', value=False)
     button_submit_signup: ElevatedButton = ElevatedButton(text='Войти', width=200, disabled=True)
     button_submit_signin: ElevatedButton = ElevatedButton(text='Зарегистрироваться', width=200, disabled=True)
     registration_link: TextButton = TextButton(text='У меня нет аккаунта', width=200)
