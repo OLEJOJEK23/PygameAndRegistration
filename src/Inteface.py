@@ -11,6 +11,7 @@ def authorization(page: ft.Page) -> None:
     page.window_width = 800
     page.window_height = 800
     page.window_resizable = False
+    page.window_center()
 
     # Создаем поля
 
