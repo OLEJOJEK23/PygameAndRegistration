@@ -31,3 +31,15 @@ def test_new_user_creating_file(password: str, login: str, name: str, surname: s
     assert (files_before < files_after) == result
 
 
+@pytest.mark.parametrize(
+    "password, login, name, surname, path",
+    [
+        ('test124', 'test221', 'test323', 'test412', os.path.abspath(os.path.join(os.path.abspath(os.getcwd()), '..'))),
+        ('test123', 'test2213', 'test3213', 'test4123', os.path.abspath(os.path.join(os.path.abspath(os.getcwd()), '..')))
+    ]
+)
+def test_new_user_file_content(password: str, login: str, name: str, surname: str, path: str):
+    create_new_user(password, login, name, surname, path)
+    lines = open(os.path.abspath(os.path.join(os.path.abspath(os.getcwd()), '..') + f"\\users\\{login}.txt"),
+                 "r", encoding='utf-8').readlines()
+    assert lines[1].strip() == name and lines[2].strip() == surname
