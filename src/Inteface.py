@@ -1,6 +1,7 @@
 import flet as ft
 from flet import *
 from hashlib import sha256
+import  os
 
 
 def authorization(page: ft.Page) -> None:
@@ -172,7 +173,7 @@ def authorization(page: ft.Page) -> None:
 
 def login_check(login: str, password: str) -> bool:
     try:
-        my_file = open(f"users/{login}.txt", "r")
+        my_file = open(os.path.abspath(os.path.join(os.path.abspath(os.getcwd()), '..') + f"\\users\\{login}.txt"), "r", encoding='utf-8')
         lines = my_file.readlines()
         right_hash = lines[0].strip()
         password_hash = sha256(password.encode('utf-8')).hexdigest()
@@ -187,7 +188,7 @@ def login_check(login: str, password: str) -> bool:
 def create_new_user(password: str, login: str, name: str, surname: str) -> str:
     try:
         password_hash = sha256(password.encode('utf-8')).hexdigest()
-        my_file = open(f"users\{login}.txt", "w+")
+        my_file = open(os.path.abspath(os.path.join(os.path.abspath(os.getcwd()), '..') + f"\\users\\{login}.txt"), "+w", encoding='utf-8')
         my_file.write(f"{password_hash}\n{name}\n{surname}")
         return "Аккаунт успешно создан"
     except Exception as ex:
