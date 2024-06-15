@@ -1,7 +1,8 @@
 import flet as ft
 from flet import *
 from hashlib import sha256
-import  os
+import os
+from pathlib import Path
 
 
 def authorization(page: ft.Page) -> None:
@@ -26,7 +27,6 @@ def authorization(page: ft.Page) -> None:
     text_username: TextField = TextField(label='Имя пользователя', text_align=ft.TextAlign.LEFT, width=200)
     text_user_surname: TextField = TextField(label='Фамилия пользователя', text_align=ft.TextAlign.LEFT, width=200)
     login_link:  TextButton = TextButton(text='Войти в существующий аккаунт', width=200)
-    dlg = ft.AlertDialog(title=ft.Text("Аккаунт успешно создан"))
     switch_theme = IconButton(icon='dark_mode',selected_icon='light_mode' )
 
     def show_password(e: ControlEvent) -> None:
@@ -55,7 +55,7 @@ def authorization(page: ft.Page) -> None:
     def submit_login(e: ControlEvent) -> None:
         user_login = text_login_signup.value
         password = text_password_signup.value
-        if login_check(user_login,password):
+        if login_check(user_login,password, os.path.abspath(os.path.join(os.path.abspath(os.getcwd())))):
             page.window_close()
         else:
             print("Неверный пароль")
@@ -129,7 +129,7 @@ def authorization(page: ft.Page) -> None:
         user_login = text_login_signin.value
         username = text_username.value
         user_surname = text_user_surname.value
-        create_new_user(password, user_login, username, user_surname)
+        create_new_user(password, user_login, username, user_surname,os.path.abspath(os.path.join(os.path.abspath(os.getcwd()))))
         page.update()
 
     text_login_signup.on_change = validate_login
@@ -171,9 +171,12 @@ def authorization(page: ft.Page) -> None:
     )
 
 
-def login_check(login: str, password: str) -> bool:
+def login_check(login: str, password: str, path: str) -> bool:
     try:
-        my_file = open(os.path.abspath(os.path.join(os.path.abspath(os.getcwd()), '..') + f"\\users\\{login}.txt"), "r", encoding='utf-8')
+        if not Path(path + f"\\users\\{login}.txt").is_file():
+            print("Аккаунт с таким именем не существует")
+            return False
+        my_file = open(path + f"\\users\\{login}.txt", "r", encoding='utf-8')
         lines = my_file.readlines()
         right_hash = lines[0].strip()
         password_hash = sha256(password.encode('utf-8')).hexdigest()
@@ -183,13 +186,18 @@ def login_check(login: str, password: str) -> bool:
             return False
     except Exception as ex:
         print(f"При попытки входа в аккаунт произошла ошибка: {ex}")
+        return False
 
 
-def create_new_user(password: str, login: str, name: str, surname: str) -> str:
+def create_new_user(password: str, login: str, name: str, surname: str, path: str) -> bool:
     try:
         password_hash = sha256(password.encode('utf-8')).hexdigest()
-        my_file = open(os.path.abspath(os.path.join(os.path.abspath(os.getcwd()), '..') + f"\\users\\{login}.txt"), "+w", encoding='utf-8')
+        if Path(path + f"\\users\\{login}.txt").is_file():
+            print("Аккаунт с таким именем уже существует")
+            return False
+        my_file = open(path + f"\\users\\{login}.txt", "+w", encoding='utf-8')
         my_file.write(f"{password_hash}\n{name}\n{surname}")
-        return "Аккаунт успешно создан"
+        return True
     except Exception as ex:
-        return f"При попытки создания аккаунта произошла ошибка: {ex}"
+        print(f"При попытки создания аккаунта произошла ошибка: {ex}")
+        return False
