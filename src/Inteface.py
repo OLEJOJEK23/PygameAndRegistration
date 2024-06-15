@@ -1,7 +1,6 @@
 import flet as ft
 from flet import *
 from hashlib import sha256
-from src.Game import start_game
 
 
 def authorization(page: ft.Page) -> None:
@@ -52,19 +51,24 @@ def authorization(page: ft.Page) -> None:
             button_submit_signup.disabled = True
         page.update()
 
-    def submit_login(e: ControlEvent) -> bool:
+    def submit_login(e: ControlEvent) -> None:
         user_login = text_login_signup.value
         password = text_password_signup.value
+        if login_check(user_login,password):
+            page.window_close()
+        else:
+            print("Неверный пароль")
+
+    def login_check(login: str, password: str) -> bool:
         try:
-            my_file = open(f"users/{user_login}.txt", "r")
+            my_file = open(f"users/{login}.txt", "r")
             lines = my_file.readlines()
             right_hash = lines[0].strip()
             password_hash = sha256(password.encode('utf-8')).hexdigest()
-            if password_hash == right_hash:
-                page.window_close()
+            if right_hash == password_hash:
                 return True
             else:
-                print("Неверный пароль")
+                return False
         except Exception as ex:
             print(f"При попытки входа в аккаунт произошла ошибка: {ex}")
 
@@ -125,6 +129,15 @@ def authorization(page: ft.Page) -> None:
 
         )
 
+    def create_new_user(password: str, login: str, name: str, surname: str) -> str:
+        try:
+            password_hash = sha256(password.encode('utf-8')).hexdigest()
+            my_file = open(f"users\{login}.txt", "w+")
+            my_file.write(f"{password_hash}\n{name}\n{surname}")
+            return "Аккаунт успешно создан"
+        except Exception as ex:
+            return f"При попытки создания аккаунта произошла ошибка: {ex}"
+
     def registration_validation(e: ControlEvent) -> None:
         if all([text_username.value, text_user_surname.value, text_login_signin.value, text_password_signin.value]):
             button_submit_signin.disabled = False
@@ -137,13 +150,7 @@ def authorization(page: ft.Page) -> None:
         user_login = text_login_signin.value
         username = text_username.value
         user_surname = text_user_surname.value
-        try:
-            password_hash = sha256(password.encode('utf-8')).hexdigest()
-            my_file = open(f"users\{user_login}.txt", "w+")
-            my_file.write(f"{password_hash}\n{username}\n{user_surname}")
-        except Exception as ex:
-            print(f"При попытки создания аккаунта произошла ошибка: {ex}")
-        dlg.open = True
+        create_new_user(password, user_login, username, user_surname)
         page.update()
 
     text_login_signup.on_change = validate_login
