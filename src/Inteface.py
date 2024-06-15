@@ -3,8 +3,12 @@ from flet import *
 from hashlib import sha256
 import os
 from pathlib import Path
+from loguru import logger
+
+logger.add('extensions/logs/debug.log', format='{time} {level} {message}', level="DEBUG")
 
 
+@logger.catch
 def authorization(page: ft.Page) -> None:
     page.title = 'Авторизация'
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
@@ -13,6 +17,7 @@ def authorization(page: ft.Page) -> None:
     page.window_height = 800
     page.window_resizable = False
     page.window_center()
+    page.window_frameless = True
 
     # Создаем поля
 
@@ -58,7 +63,7 @@ def authorization(page: ft.Page) -> None:
         if login_check(user_login,password, os.path.abspath(os.path.join(os.path.abspath(os.getcwd())))):
             page.window_close()
         else:
-            print("Неверный пароль")
+            logger.info("Неверный логин или пароль")
 
     def registration_page(e: ControlEvent) -> None:
         page.title = "Регистрация"
@@ -171,10 +176,11 @@ def authorization(page: ft.Page) -> None:
     )
 
 
+@logger.catch
 def login_check(login: str, password: str, path: str) -> bool:
     try:
         if not Path(path + f"\\users\\{login}.txt").is_file():
-            print("Аккаунт с таким именем не существует")
+            logger.info("Аккаунт с таким именем не существует")
             return False
         my_file = open(path + f"\\users\\{login}.txt", "r", encoding='utf-8')
         lines = my_file.readlines()
@@ -185,19 +191,20 @@ def login_check(login: str, password: str, path: str) -> bool:
         else:
             return False
     except Exception as ex:
-        print(f"При попытки входа в аккаунт произошла ошибка: {ex}")
+        logger.error(f"При попытки входа в аккаунт произошла ошибка: {ex}")
         return False
 
 
+@logger.catch
 def create_new_user(password: str, login: str, name: str, surname: str, path: str) -> bool:
     try:
         password_hash = sha256(password.encode('utf-8')).hexdigest()
         if Path(path + f"\\users\\{login}.txt").is_file():
-            print("Аккаунт с таким именем уже существует")
+            logger.info("Аккаунт с таким именем уже существует")
             return False
         my_file = open(path + f"\\users\\{login}.txt", "+w", encoding='utf-8')
         my_file.write(f"{password_hash}\n{name}\n{surname}")
         return True
     except Exception as ex:
-        print(f"При попытки создания аккаунта произошла ошибка: {ex}")
+        logger.info(f"При попытки создания аккаунта произошла ошибка: {ex}")
         return False
