@@ -59,19 +59,6 @@ def authorization(page: ft.Page) -> None:
         else:
             print("Неверный пароль")
 
-    def login_check(login: str, password: str) -> bool:
-        try:
-            my_file = open(f"users/{login}.txt", "r")
-            lines = my_file.readlines()
-            right_hash = lines[0].strip()
-            password_hash = sha256(password.encode('utf-8')).hexdigest()
-            if right_hash == password_hash:
-                return True
-            else:
-                return False
-        except Exception as ex:
-            print(f"При попытки входа в аккаунт произошла ошибка: {ex}")
-
     def registration_page(e: ControlEvent) -> None:
         page.title = "Регистрация"
         page.clean()
@@ -129,15 +116,6 @@ def authorization(page: ft.Page) -> None:
 
         )
 
-    def create_new_user(password: str, login: str, name: str, surname: str) -> str:
-        try:
-            password_hash = sha256(password.encode('utf-8')).hexdigest()
-            my_file = open(f"users\{login}.txt", "w+")
-            my_file.write(f"{password_hash}\n{name}\n{surname}")
-            return "Аккаунт успешно создан"
-        except Exception as ex:
-            return f"При попытки создания аккаунта произошла ошибка: {ex}"
-
     def registration_validation(e: ControlEvent) -> None:
         if all([text_username.value, text_user_surname.value, text_login_signin.value, text_password_signin.value]):
             button_submit_signin.disabled = False
@@ -190,3 +168,27 @@ def authorization(page: ft.Page) -> None:
         )
 
     )
+
+
+def login_check(login: str, password: str) -> bool:
+    try:
+        my_file = open(f"users/{login}.txt", "r")
+        lines = my_file.readlines()
+        right_hash = lines[0].strip()
+        password_hash = sha256(password.encode('utf-8')).hexdigest()
+        if right_hash == password_hash:
+            return True
+        else:
+            return False
+    except Exception as ex:
+        print(f"При попытки входа в аккаунт произошла ошибка: {ex}")
+
+
+def create_new_user(password: str, login: str, name: str, surname: str) -> str:
+    try:
+        password_hash = sha256(password.encode('utf-8')).hexdigest()
+        my_file = open(f"users\{login}.txt", "w+")
+        my_file.write(f"{password_hash}\n{name}\n{surname}")
+        return "Аккаунт успешно создан"
+    except Exception as ex:
+        return f"При попытки создания аккаунта произошла ошибка: {ex}"
